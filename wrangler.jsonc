@@ -1,0 +1,35 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "plantcare-back",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    // Non-secret defaults. Override secrets via `wrangler secret put`.
+    "GEMINI_MODEL": "gemini-2.5-flash",
+    // CORS allow-list + hard server-side origin check. Only requests whose
+    // Origin is in this list may call /analyze (others get 403). Use "*" to
+    // disable the check (allow any origin). Comma-separated for multiple.
+    "ALLOWED_ORIGINS": "https://plantcare.kurdyukov-leo-ger.workers.dev",
+    // Default reply language when the question language can't be inferred (image-only).
+    "DEFAULT_LANGUAGE": "ru",
+    // Rate limit: max requests per window per session/IP.
+    "RATE_LIMIT_MAX": "20",
+    "RATE_LIMIT_WINDOW_SECONDS": "60",
+    // Max decoded image size in bytes (8 MB).
+    "MAX_IMAGE_BYTES": "8388608"
+  }
+
+  // To enable durable, cross-isolate rate limiting, bind a KV namespace named
+  // RATE_LIMIT_KV (the code uses it automatically when present):
+  //
+  // "kv_namespaces": [
+  //   { "binding": "RATE_LIMIT_KV", "id": "<your-kv-namespace-id>" }
+  // ]
+  //
+  // Secrets (set with `wrangler secret put <NAME>`):
+  //   GEMINI_API_KEY  — required, never exposed to clients.
+}
