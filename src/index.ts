@@ -4,7 +4,7 @@
  * Skills-based agent: intent detection → content skills → composer → response.
  *
  * Routes:
- *   POST /analyze | /api/analyze        → AgentResponse
+ *   POST /analyze | /api/analyze        → PlantCareResult
  *   GET  /health  | /api/health         → { ok: true }
  *   GET  /history | /api/history        → history list (X-Session-Id)
  *   GET  /history/:id                   → history item

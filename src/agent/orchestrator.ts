@@ -5,11 +5,10 @@ import { getActiveAgent } from '../config/service';
 import { resolveSkillDefinition } from '../config/resolve';
 import { HttpError } from '../errors';
 import { deleteHistoryItem, getHistoryItem, listHistory, saveHistoryItem } from '../history/store';
-import { sanitizeAgentResponse } from '../sanitize';
-import { SKILL_DISPLAY_NAMES } from '../skills/registry';
+import { sanitizeResult } from '../sanitize';
 import { runLlmSkill } from '../skills/runner';
 import type { IntentDetectionOutput, SkillContext, SkillId } from '../skills/types';
-import type { AgentResponse, Env } from '../types';
+import type { Env, PlantCareResult } from '../types';
 import type { NormalizedRequest } from '../validation';
 
 const ORCHESTRATOR_SKILLS = new Set<SkillId>([
@@ -52,7 +51,7 @@ export async function runAgent(
   env: Env,
   req: NormalizedRequest,
   sessionId: string,
-): Promise<AgentResponse> {
+): Promise<PlantCareResult> {
   const { agent } = await getActiveAgent(env);
   const agentCfg = agent.activeVersion.content;
   const defaultLanguage =
@@ -104,31 +103,16 @@ export async function runAgent(
   }
 
   const composed = await runLlmSkill<unknown>(env, composerSkill, ctx);
-  const sanitized = sanitizeAgentResponse(composed, ctx.detectedLanguage);
+  const sanitized = sanitizeResult(composed);
   if (!sanitized) {
     throw new HttpError(502, 'The analysis service returned an incomplete result. Please try again.');
   }
 
-  sanitized.metadata.detectedIntent =
-    sanitized.metadata.detectedIntent ?? intent.detectedIntent;
-  sanitized.metadata.overallConfidence =
-    sanitized.metadata.overallConfidence ?? intent.confidence;
-  if (sanitized.metadata.usedSkills.length === 0) {
-    sanitized.metadata.usedSkills = toRun
-      .map((id) => SKILL_DISPLAY_NAMES[id])
-      .concat(SKILL_DISPLAY_NAMES['frontend-response-composer']);
+  if (!sanitized.confidence) {
+    sanitized.confidence = intent.confidence;
   }
 
-  const historyId = await saveHistoryItem(
-    env,
-    sessionId,
-    req.question,
-    req.image !== null,
-    sanitized,
-  );
-  if (historyId) {
-    sanitized.metadata.historyItemId = historyId;
-  }
+  await saveHistoryItem(env, sessionId, req.question, req.image !== null, sanitized);
 
   return sanitized;
 }

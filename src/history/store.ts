@@ -1,7 +1,7 @@
 /**
  * Persists and retrieves per-session analysis history via optional KV.
  */
-import type { AgentResponse, HistoryItemDetails, HistoryListItem } from '../types';
+import type { HistoryItemDetails, HistoryListItem, PlantCareResult } from '../types';
 import type { Env } from '../types';
 
 const MAX_ITEMS = 50;
@@ -24,14 +24,14 @@ export async function saveHistoryItem(
   sessionId: string,
   question: string,
   hasImage: boolean,
-  response: AgentResponse,
+  response: PlantCareResult,
 ): Promise<string | null> {
   if (!env.HISTORY_KV) return null;
 
   const id = createId();
   const createdAt = new Date().toISOString();
-  const plantName = response.plantCard?.commonName;
-  const preview = response.summary.shortAnswer.slice(0, 160);
+  const plantName = response.identification?.commonName;
+  const preview = response.summary.slice(0, 160);
 
   const listItem: HistoryListItem = {
     id,

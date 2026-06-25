@@ -19,7 +19,78 @@ export interface AnalyzeRequest {
 }
 
 /* ------------------------------------------------------------------ */
-/* Agent response (frontend-ready sections)                            */
+/* Analyze response — PlantCareResult (frontend contract)                */
+/* ------------------------------------------------------------------ */
+
+export type Confidence = 'low' | 'medium' | 'high';
+export type Severity = 'info' | 'warning' | 'critical';
+export type Priority = 'low' | 'medium' | 'high';
+
+export const CARE_PROFILE_KEYS = [
+  'watering',
+  'light',
+  'humidity',
+  'temperature',
+  'soil',
+  'fertilizer',
+  'size',
+] as const;
+
+export interface PlantIdentification {
+  commonName?: string;
+  scientificName?: string;
+  alsoKnownAs?: string[];
+  confidence?: Confidence;
+  description?: string;
+}
+
+export interface CareProfileItem {
+  key: string;
+  label: string;
+  value: string;
+  detail?: string;
+}
+
+export interface DiagnosisIssue {
+  title: string;
+  severity: Severity;
+  description?: string;
+  likelyCause?: string;
+}
+
+export interface DiagnosisSection {
+  healthStatus?: string;
+  issues: DiagnosisIssue[];
+}
+
+export interface WateringPlan {
+  frequency?: string;
+  amount?: string;
+  method?: string;
+  notes?: string;
+}
+
+export interface ActionItem {
+  id: string;
+  text: string;
+  priority?: Priority;
+}
+
+/** Legacy frontend response from POST /analyze. Only summary is guaranteed. */
+export interface PlantCareResult {
+  summary: string;
+  confidence?: Confidence;
+  warnings?: string[];
+  identification?: PlantIdentification;
+  careProfile?: CareProfileItem[];
+  diagnosis?: DiagnosisSection;
+  wateringPlan?: WateringPlan;
+  actionPlan?: ActionItem[];
+  followUps?: string[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Extended agent response (config / future use)                         */
 /* ------------------------------------------------------------------ */
 
 export type ConfidenceLabel = 'low' | 'medium' | 'high';
@@ -183,7 +254,7 @@ export interface HistoryListItem {
 }
 
 export interface HistoryItemDetails extends HistoryListItem {
-  response: AgentResponse;
+  response: PlantCareResult;
 }
 
 /* ------------------------------------------------------------------ */
