@@ -1,24 +1,16 @@
 /**
  * Built-in defaults seeded into CONFIG_KV on first use.
  */
-import * as careGuide from '../skills/plant-care-guide';
+import * as careExpert from '../skills/care-expert';
 import * as composer from '../skills/frontend-response-composer';
-import * as diagnosis from '../skills/disease-pest-diagnosis';
-import * as existingHealth from '../skills/existing-plant-health-check';
-import * as fertilizing from '../skills/fertilizing';
+import * as diagnosisSafety from '../skills/diagnosis-safety';
 import * as followUp from '../skills/follow-up-questions';
 import { PROMPT as INTENT_PROMPT } from '../skills/intent-detection/prompt';
 import { SCHEMA as INTENT_SCHEMA } from '../skills/intent-detection/schema';
-import * as lightPlacement from '../skills/light-placement';
-import * as newOnboarding from '../skills/new-plant-onboarding';
 import { PROMPT as ID_PROMPT } from '../skills/plant-identification/prompt';
 import { SCHEMA as ID_SCHEMA } from '../skills/plant-identification/schema';
-import * as repotting from '../skills/repotting';
 import { SKILL_DISPLAY_NAMES } from '../skills/registry';
-import * as seasonal from '../skills/seasonal-care';
 import type { SkillId } from '../skills/types';
-import * as toxicity from '../skills/toxicity-safety';
-import * as watering from '../skills/watering';
 import type {
   AgentConfigContent,
   EntityMeta,
@@ -55,84 +47,21 @@ const SKILL_SEEDS: SkillSeed[] = [
     description: 'Identifies plant from photo or description.',
   },
   {
-    id: 'plant-care-guide',
-    prompt: careGuide.PROMPT,
-    schema: careGuide.SCHEMA as Record<string, unknown>,
-    mvp: true,
-    usesImage: false,
-    description: 'General care guide for a plant.',
-  },
-  {
-    id: 'new-plant-onboarding',
-    prompt: newOnboarding.PROMPT,
-    schema: newOnboarding.SCHEMA as Record<string, unknown>,
-    mvp: true,
-    usesImage: false,
-    description: 'First steps after buying a new plant.',
-  },
-  {
-    id: 'existing-plant-health-check',
-    prompt: existingHealth.PROMPT,
-    schema: existingHealth.SCHEMA as Record<string, unknown>,
-    mvp: false,
-    usesImage: false,
-    description: 'Health checklist for established plants.',
-  },
-  {
-    id: 'watering',
-    prompt: watering.PROMPT,
-    schema: watering.SCHEMA as Record<string, unknown>,
-    mvp: false,
-    usesImage: false,
-    description: 'Watering recommendations.',
-  },
-  {
-    id: 'light-placement',
-    prompt: lightPlacement.PROMPT,
-    schema: lightPlacement.SCHEMA as Record<string, unknown>,
-    mvp: false,
-    usesImage: false,
-    description: 'Light and placement advice.',
-  },
-  {
-    id: 'repotting',
-    prompt: repotting.PROMPT,
-    schema: repotting.SCHEMA as Record<string, unknown>,
-    mvp: false,
-    usesImage: false,
-    description: 'Repotting and soil guidance.',
-  },
-  {
-    id: 'fertilizing',
-    prompt: fertilizing.PROMPT,
-    schema: fertilizing.SCHEMA as Record<string, unknown>,
-    mvp: false,
-    usesImage: false,
-    description: 'Fertilizing guidance.',
-  },
-  {
-    id: 'disease-pest-diagnosis',
-    prompt: diagnosis.PROMPT,
-    schema: diagnosis.SCHEMA as Record<string, unknown>,
+    id: 'care-expert',
+    prompt: careExpert.PROMPT,
+    schema: careExpert.SCHEMA as Record<string, unknown>,
     mvp: true,
     usesImage: true,
-    description: 'Diagnoses diseases and pests.',
+    description:
+      'Consolidated care specialist: care guide, watering, light, humidity, soil, fertilizer, repotting, seasonal care, onboarding, health checks.',
   },
   {
-    id: 'seasonal-care',
-    prompt: seasonal.PROMPT,
-    schema: seasonal.SCHEMA as Record<string, unknown>,
-    mvp: false,
-    usesImage: false,
-    description: 'Seasonal care adjustments.',
-  },
-  {
-    id: 'toxicity-safety',
-    prompt: toxicity.PROMPT,
-    schema: toxicity.SCHEMA as Record<string, unknown>,
+    id: 'diagnosis-safety',
+    prompt: diagnosisSafety.PROMPT,
+    schema: diagnosisSafety.SCHEMA as Record<string, unknown>,
     mvp: true,
-    usesImage: false,
-    description: 'Pet and child safety assessment.',
+    usesImage: true,
+    description: 'Disease/pest diagnosis combined with pet and child safety assessment.',
   },
   {
     id: 'follow-up-questions',

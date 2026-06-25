@@ -11,37 +11,32 @@ POST /analyze
 Intent Detection Skill          (always — picks which skills to run)
     │
     ├─ Plant Identification     (if photo / unknown plant)
-    ├─ Content skills (parallel) — care guide, diagnosis, watering, …
+    ├─ Care Expert              (general care: watering, light, soil, repotting, season, onboarding…)
+    ├─ Diagnosis & Safety       (problems/pests + pet/child toxicity)
     ├─ Follow-up Questions      (if ambiguous / low confidence)
-    │
+    │      (the experts above run in parallel)
     ▼
-Frontend Response Composer      (merges skill outputs → AgentResponse)
+Frontend Response Composer      (merges skill outputs → PlantCareResult)
     │
     ▼
 History Skill                   (optional — saves to HISTORY_KV)
 ```
 
-Each skill lives in its own folder under `src/skills/` with an **English prompt** and JSON schema. Prompts are never exposed to the client.
+Each skill lives in its own folder under `src/skills/` with an **English prompt** and JSON schema. Prompts are never exposed to the client. To keep latency and cost down, the previous granular content skills were consolidated into two multimodal "experts".
 
-### Skills (15)
+### Skills (7)
 
 | Skill | Folder | MVP |
 |-------|--------|-----|
 | Intent Detection | `intent-detection/` | ✓ |
 | Plant Identification | `plant-identification/` | ✓ |
-| Plant Care Guide | `plant-care-guide/` | ✓ |
-| New Plant Onboarding | `new-plant-onboarding/` | ✓ |
-| Existing Plant Health Check | `existing-plant-health-check/` | |
-| Watering | `watering/` | |
-| Light & Placement | `light-placement/` | |
-| Repotting | `repotting/` | |
-| Fertilizing | `fertilizing/` | |
-| Disease & Pest Diagnosis | `disease-pest-diagnosis/` | ✓ |
-| Seasonal Care | `seasonal-care/` | |
-| Toxicity & Safety | `toxicity-safety/` | ✓ |
+| Care Expert | `care-expert/` | ✓ |
+| Diagnosis & Safety | `diagnosis-safety/` | ✓ |
 | Follow-up Questions | `follow-up-questions/` | |
 | Frontend Response Composer | `frontend-response-composer/` | ✓ |
 | History | `history/store.ts` (KV, no LLM) | ✓ |
+
+**Gemini calls per `/analyze`:** typically **3** (intent + care-expert + composer); **4–5** with identification and/or diagnosis. The `care-expert` and `diagnosis-safety` experts run in parallel.
 
 ## API
 
@@ -51,7 +46,7 @@ Headers: `Content-Type: application/json`, `X-Session-Id` (required).
 
 Body: `{ "question": "...", "image": null | { name, mimeType, size, dataUrl } }`
 
-Success `200` → `AgentResponse` with sections: `summary`, `plantCard`, `careGuide`, `diagnosis`, `actionPlan`, `warnings`, `followUpQuestions`, `metadata`, etc. Only `summary` + `metadata` are guaranteed.
+Success `200` → `PlantCareResult`: `summary` (string, required), `confidence`, `warnings`, `identification`, `careProfile`, `diagnosis`, `wateringPlan`, `actionPlan`, `followUps`. Only `summary` is guaranteed.
 
 ### History (requires `HISTORY_KV` binding)
 

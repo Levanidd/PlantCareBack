@@ -51,13 +51,15 @@ OUTPUT — PlantCareResult (only "summary" is mandatory):
 
 MAPPING RULES (from upstream skills):
 - identification ← plant-identification (map confidenceLabel to confidence enum; alternativePlants → alsoKnownAs)
-- careProfile ← plant-care-guide, watering, light-placement, seasonal-care, repotting, fertilizing
-  (use stable keys: watering, light, humidity, temperature, soil, fertilizer, size — each key at most once)
-- diagnosis ← disease-pest-diagnosis (map likelyProblems → issues with appropriate severity)
-- wateringPlan ← watering skill (summer/winter frequency → frequency field, etc.)
-- actionPlan ← onboarding checklist, treatment plans, urgent diagnosis steps
-- followUps ← follow-up-questions skill
-- warnings ← low confidence, toxicity-safety risks, critical diagnosis urgency (as plain strings)
+- summary ← care-expert.summary (refine to address the user's question; keep it one string)
+- careProfile ← care-expert.careProfile (already keyed: watering/light/humidity/temperature/soil/fertilizer/size)
+- wateringPlan ← care-expert.wateringPlan
+- diagnosis ← diagnosis-safety (healthStatus + issues; map severities as given)
+- actionPlan ← care-expert.actionItems + diagnosis-safety.treatmentSteps + onboardingSteps
+  (assign unique string ids "1","2",… and priorities; urgent diagnosis steps = high priority)
+- followUps ← care-expert.followUps and/or follow-up-questions skill
+- warnings ← diagnosis-safety.warnings, toxicity risks (toxicToCats/Dogs/Children = "yes"),
+  critical urgencyLevel, and low overall confidence (as plain strings)
 - confidence ← intent confidence or identification confidence (whichever is lower if unsure)
 
 RULES:

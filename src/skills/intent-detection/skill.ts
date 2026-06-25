@@ -5,16 +5,8 @@ import { SCHEMA } from './schema';
 
 const RUNNABLE_SKILLS = new Set([
   'plant-identification',
-  'plant-care-guide',
-  'new-plant-onboarding',
-  'existing-plant-health-check',
-  'watering',
-  'light-placement',
-  'repotting',
-  'fertilizing',
-  'disease-pest-diagnosis',
-  'seasonal-care',
-  'toxicity-safety',
+  'care-expert',
+  'diagnosis-safety',
   'follow-up-questions',
 ]);
 
@@ -36,7 +28,7 @@ function normalize(raw: unknown): IntentDetectionOutput | null {
     : [];
 
   if (skillsToRun.length === 0) {
-    skillsToRun.push('plant-care-guide');
+    skillsToRun.push('care-expert');
   }
   if (needsClarification && !skillsToRun.includes('follow-up-questions')) {
     skillsToRun.push('follow-up-questions');

@@ -83,11 +83,16 @@ interface SkillConfigContent {
 }
 ```
 
-Built-in skill IDs (14):  
-`intent-detection`, `plant-identification`, `plant-care-guide`, `new-plant-onboarding`,  
-`existing-plant-health-check`, `watering`, `light-placement`, `repotting`, `fertilizing`,  
-`disease-pest-diagnosis`, `seasonal-care`, `toxicity-safety`, `follow-up-questions`,  
-`frontend-response-composer`.
+Built-in skill IDs (6 LLM skills):  
+`intent-detection`, `plant-identification`, `care-expert`, `diagnosis-safety`,  
+`follow-up-questions`, `frontend-response-composer`.
+
+> Note: the previous granular skills (`plant-care-guide`, `watering`, `light-placement`,
+> `repotting`, `fertilizing`, `seasonal-care`, `new-plant-onboarding`,
+> `existing-plant-health-check`, `disease-pest-diagnosis`, `toxicity-safety`) were merged
+> into `care-expert` and `diagnosis-safety` to reduce Gemini calls. If `CONFIG_KV` was seeded
+> with the old set, re-seed via `POST /config/seed` against an empty namespace (or a fresh
+> namespace) to pick up the new IDs.
 
 ### 3.2 Tool (`kind: "tool"`)
 
@@ -366,9 +371,8 @@ Selects which agent + version handles all `/analyze` requests.
     "defaultLanguage": "ru",
     "availableSkillIds": [
       "plant-identification",
-      "plant-care-guide",
-      "disease-pest-diagnosis",
-      "toxicity-safety"
+      "care-expert",
+      "diagnosis-safety"
     ],
     "toolIds": ["image-quality-check", "urgency-scorer"],
     "pipeline": {
