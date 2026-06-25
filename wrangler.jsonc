@@ -27,7 +27,9 @@
   // RATE_LIMIT_KV (the code uses it automatically when present):
   //
   // "kv_namespaces": [
-  //   { "binding": "RATE_LIMIT_KV", "id": "<your-kv-namespace-id>" }
+  //   { "binding": "RATE_LIMIT_KV", "id": "<rate-limit-kv-id>" },
+  //   { "binding": "HISTORY_KV", "id": "<history-kv-id>" },
+  //   { "binding": "CONFIG_KV", "id": "<config-kv-id>" }
   // ]
   //
   // Secrets (set with `wrangler secret put <NAME>`):
