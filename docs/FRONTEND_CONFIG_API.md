@@ -91,8 +91,8 @@ Built-in skill IDs (6 LLM skills):
 > `repotting`, `fertilizing`, `seasonal-care`, `new-plant-onboarding`,
 > `existing-plant-health-check`, `disease-pest-diagnosis`, `toxicity-safety`) were merged
 > into `care-expert` and `diagnosis-safety` to reduce Gemini calls. If `CONFIG_KV` was seeded
-> with the old set, re-seed via `POST /config/seed` against an empty namespace (or a fresh
-> namespace) to pick up the new IDs.
+> with the old set, migrate by calling `POST /config/reset` (wipe + re-seed from current code
+> defaults), or remove individual stale entries with `DELETE /config/skills/:id`. See §4.5.
 
 ### 3.2 Tool (`kind: "tool"`)
 
@@ -192,6 +192,7 @@ interface EntitySummary {
 | GET | `/config/skills/:id/versions/:versionId` | Specific version (read-only) |
 | POST | `/config/skills/:id/versions` | **Save new version** |
 | PUT | `/config/skills/:id/active-version` | **Activate existing version** |
+| DELETE | `/config/skills/:id` | **Delete skill** + all its versions (requires `CONFIG_KV`) |
 
 #### `GET /config/skills/:id` — response
 
@@ -403,6 +404,40 @@ Idempotent — seeds built-in skills, tools, and default agent into `CONFIG_KV` 
 or `{ "seeded": false, "message": "Already initialized." }`
 
 Called automatically on first `GET /config/catalog` when KV is bound.
+
+#### `DELETE /config/{skills|tools|agents}/:id`
+
+Permanently removes a single entity and **all** of its versions. Use this to drop
+stale skill IDs left over from an earlier seed (e.g. `watering`, `plant-care-guide`,
+`toxicity-safety` after they were merged into `care-expert` / `diagnosis-safety`).
+
+**Response 200:**
+
+```json
+{ "deleted": true, "id": "watering", "kind": "skill" }
+```
+
+| Status | Meaning |
+|--------|---------|
+| 200 | Deleted |
+| 404 | Entity not found |
+| 503 | `CONFIG_KV` not bound (built-in code defaults can't be deleted) |
+
+#### `POST /config/reset`
+
+**Destructive.** Wipes every stored skill, tool, agent, and the active-agent
+pointer, then re-seeds from the current code defaults. This is the simplest way
+to migrate `CONFIG_KV` after a skill refactor — old IDs disappear and the new
+consolidated set is installed in one call.
+
+**Response 200:**
+
+```json
+{ "reset": true, "seeded": true, "message": "Configuration reset and re-seeded from code defaults." }
+```
+
+> ⚠️ Any custom (non-built-in) versions saved through the API are also removed.
+> Export anything you want to keep before calling reset.
 
 ---
 

@@ -5,7 +5,9 @@ import { HttpError } from '../errors';
 import type { Env } from '../types';
 import { DEFAULT_AGENT_ID, seedDefaults, SKILL_SEEDS, TOOL_SEEDS } from './defaults';
 import {
+  clearStore,
   createVersion,
+  deleteEntity,
   getActiveAgentPointer,
   getActiveVersion,
   getEntityMeta,
@@ -356,6 +358,39 @@ export async function setActiveAgent(
     updatedAt: new Date().toISOString(),
     updatedBy,
   });
+}
+
+export async function deleteConfigEntity(
+  env: Env,
+  kind: ConfigEntityKind,
+  id: string,
+): Promise<{ deleted: boolean }> {
+  if (!env.CONFIG_KV) {
+    throw new HttpError(
+      503,
+      'Configuration storage is not available. Bind CONFIG_KV to delete entities. Built-in code defaults cannot be deleted.',
+    );
+  }
+  await ensureReady(env);
+  const deleted = await deleteEntity(env, kind, id);
+  if (!deleted) throw new HttpError(404, `${kind} "${id}" not found.`);
+  return { deleted: true };
+}
+
+/**
+ * Drop every stored config entity and re-seed from the current code defaults.
+ * This is the clean way to remove stale skill IDs after a refactor.
+ */
+export async function resetConfig(env: Env): Promise<{ reset: boolean; seeded: boolean }> {
+  if (!env.CONFIG_KV) {
+    throw new HttpError(
+      503,
+      'Configuration storage is not available. Bind CONFIG_KV to reset configuration.',
+    );
+  }
+  await clearStore(env);
+  const { seeded } = await seedDefaults(env);
+  return { reset: true, seeded };
 }
 
 export { seedDefaults, ensureReady };

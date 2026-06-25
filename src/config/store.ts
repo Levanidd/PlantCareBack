@@ -199,3 +199,52 @@ export async function isStoreEmpty(env: Env): Promise<boolean> {
   const skills = await env.CONFIG_KV.get(indexKey('skill'), 'json');
   return !skills;
 }
+
+/**
+ * Permanently remove an entity, all of its version blobs, and its index entry.
+ * Returns false if the entity does not exist.
+ */
+export async function deleteEntity(
+  env: Env,
+  kind: ConfigEntityKind,
+  id: string,
+): Promise<boolean> {
+  const kv = requireKv(env);
+  const meta = await getEntityMeta(env, kind, id);
+  const versions = await listVersionMetas(env, kind, id);
+  const existedInIndex = (await listEntityIds(env, kind)).includes(id);
+  if (!meta && versions.length === 0 && !existedInIndex) return false;
+
+  for (const v of versions) {
+    await kv.delete(versionKey(kind, id, v.versionId));
+  }
+  await kv.delete(versionsIndexKey(kind, id));
+  await kv.delete(metaKey(kind, id));
+
+  const ids = (await listEntityIds(env, kind)).filter((x) => x !== id);
+  await kv.put(indexKey(kind), JSON.stringify(ids));
+
+  if (kind === 'agent') {
+    const pointer = await getActiveAgentPointer(env);
+    if (pointer?.agentId === id) {
+      await kv.delete(ACTIVE_AGENT_KEY);
+    }
+  }
+  return true;
+}
+
+/**
+ * Wipe every config entity (skills, tools, agents) plus the active-agent
+ * pointer. Used by reset/reseed flows.
+ */
+export async function clearStore(env: Env): Promise<void> {
+  const kv = requireKv(env);
+  for (const kind of ['skill', 'tool', 'agent'] as const) {
+    const ids = await listEntityIds(env, kind);
+    for (const id of ids) {
+      await deleteEntity(env, kind, id);
+    }
+    await kv.delete(indexKey(kind));
+  }
+  await kv.delete(ACTIVE_AGENT_KEY);
+}

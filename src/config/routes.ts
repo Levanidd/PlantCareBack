@@ -7,6 +7,7 @@ import {
   activateAgentVersion,
   activateSkillVersion,
   activateToolVersion,
+  deleteConfigEntity,
   getActiveAgent,
   getAgentDetail,
   getCatalog,
@@ -14,6 +15,7 @@ import {
   getToolDetail,
   getVersionDetail,
   listVersions,
+  resetConfig,
   saveAgentVersion,
   saveSkillVersion,
   saveToolVersion,
@@ -69,6 +71,12 @@ export async function handleConfigRoute(
     return json({ ...result, message: result.seeded ? 'Defaults seeded.' : 'Already initialized.' }, 200);
   }
 
+  // POST /config/reset — wipe all stored config and re-seed from code defaults.
+  if (path === '/config/reset' && request.method === 'POST') {
+    const result = await resetConfig(env);
+    return json({ ...result, message: 'Configuration reset and re-seeded from code defaults.' }, 200);
+  }
+
   // GET /config/catalog
   if (path === '/config/catalog' && request.method === 'GET') {
     return json(await getCatalog(env), 200);
@@ -109,6 +117,10 @@ export async function handleConfigRoute(
       if (kind === 'skill') return json(await getSkillDetail(env, id), 200);
       if (kind === 'tool') return json(await getToolDetail(env, id), 200);
       return json(await getAgentDetail(env, id), 200);
+    }
+    if (request.method === 'DELETE') {
+      const result = await deleteConfigEntity(env, kind, id);
+      return json({ ...result, id, kind }, 200);
     }
     return error('Method not allowed.', 405);
   }

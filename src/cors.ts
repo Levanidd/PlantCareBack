@@ -5,7 +5,7 @@
  */
 import type { Env } from './types';
 
-const ALLOWED_METHODS = 'POST, OPTIONS';
+const ALLOWED_METHODS = 'GET, POST, PUT, DELETE, OPTIONS';
 const ALLOWED_HEADERS = 'Content-Type, X-Session-Id';
 const MAX_AGE = '86400';
 
