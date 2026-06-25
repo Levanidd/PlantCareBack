@@ -48,7 +48,9 @@ function createVersionId(): string {
 
 export async function listEntityIds(env: Env, kind: ConfigEntityKind): Promise<string[]> {
   const kv = requireKv(env);
-  return (await kv.get<string[]>(indexKey(kind), 'json')) ?? [];
+  const ids = (await kv.get<string[]>(indexKey(kind), 'json')) ?? [];
+  // Defensive de-dup: tolerate indexes polluted by earlier seeding bugs.
+  return [...new Set(ids)];
 }
 
 export async function getEntityMeta(

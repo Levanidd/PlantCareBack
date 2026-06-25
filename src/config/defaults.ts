@@ -205,8 +205,8 @@ export async function seedDefaults(env: import('../types').Env): Promise<{ seede
       version.versionId,
       seed.description,
     );
+    // putEntity appends meta.id to skillIds and writes the index itself.
     await putEntity(env, 'skill', meta, version, [version], skillIds);
-    skillIds.push(seed.id);
   }
 
   const toolIds: string[] = [];
@@ -214,7 +214,6 @@ export async function seedDefaults(env: import('../types').Env): Promise<{ seede
     const version = seedVersion(seed.content, 1);
     const meta = seedMeta(seed.id, 'tool', seed.name, version.versionId, seed.content.description);
     await putEntity(env, 'tool', meta, version, [version], toolIds);
-    toolIds.push(seed.id);
   }
 
   const agentContent: AgentConfigContent = {
