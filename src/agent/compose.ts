@@ -30,10 +30,14 @@ interface LooseAction {
 function resolveCareDifficultyScore(care: Dict | null): number | undefined {
   if (!care) return undefined;
   const raw = care.careDifficultyScore;
+  let n: number | undefined;
   if (typeof raw === 'number' && Number.isFinite(raw)) {
-    const n = Math.round(raw);
-    if (n >= 1 && n <= 10) return n;
+    n = Math.round(raw);
+  } else if (typeof raw === 'string' && raw.trim()) {
+    const parsed = Number.parseInt(raw.trim(), 10);
+    if (Number.isFinite(parsed)) n = parsed;
   }
+  if (n !== undefined && n >= 1 && n <= 10) return n;
   const level = asStr(care.difficultyLevel);
   if (level === 'easy') return 3;
   if (level === 'medium') return 5;
