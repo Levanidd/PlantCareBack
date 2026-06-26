@@ -218,9 +218,9 @@ export async function seedDefaults(env: import('../types').Env): Promise<{ seede
 
   const agentContent: AgentConfigContent = {
     description:
-      'Агент по уходу за комнатными растениями. Полный гайд: полив, свет, пересадка, ' +
-      'подкормка, сезон, токсичность, диагностика. Триггеры: названия растений, полив, ' +
-      'пересадка, болезни, купил/уже есть, животные/дети.',
+      'Indoor plant care agent. Full guide: watering, light, repotting, fertilizer, seasonal care, ' +
+      'toxicity, and diagnosis. Triggers: plant names, watering, repotting, diseases, ' +
+      'new/existing plant, pets and children.',
     defaultLanguage: env.DEFAULT_LANGUAGE || 'ru',
     availableSkillIds: ALL_SKILL_IDS.filter(
       (id) =>
