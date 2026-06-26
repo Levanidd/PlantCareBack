@@ -55,7 +55,7 @@ export async function runAgent(
   const { agent } = await getActiveAgent(env);
   const agentCfg = agent.activeVersion.content;
   const defaultLanguage =
-    agentCfg.defaultLanguage || env.DEFAULT_LANGUAGE || 'ru';
+    agentCfg.defaultLanguage || env.DEFAULT_LANGUAGE || 'en';
   const ctx = buildContext(req, sessionId, defaultLanguage);
 
   const intentSkillId = agentCfg.pipeline.intentSkillId;

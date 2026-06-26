@@ -15,7 +15,7 @@
     // disable the check (allow any origin). Comma-separated for multiple.
     "ALLOWED_ORIGINS": "https://plantcare.kurdyukov-leo-ger.workers.dev",
     // Default reply language when the question language can't be inferred (image-only).
-    "DEFAULT_LANGUAGE": "ru",
+    "DEFAULT_LANGUAGE": "en",
     // Rate limit: max requests per window per session/IP.
     "RATE_LIMIT_MAX": "20",
     "RATE_LIMIT_WINDOW_SECONDS": "60",

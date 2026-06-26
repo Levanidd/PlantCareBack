@@ -197,7 +197,7 @@ export async function getAgentDetail(env: Env, id: string): Promise<EntityDetail
     if (id !== DEFAULT_AGENT_ID) throw new HttpError(404, `Agent "${id}" not found.`);
     const content: AgentConfigContent = {
       description: 'Default Plant Care Agent',
-      defaultLanguage: env.DEFAULT_LANGUAGE || 'ru',
+      defaultLanguage: env.DEFAULT_LANGUAGE || 'en',
       availableSkillIds: SKILL_SEEDS.map((s) => s.id).filter(
         (sid) =>
           sid !== 'intent-detection' &&

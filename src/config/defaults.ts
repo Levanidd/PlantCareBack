@@ -221,7 +221,7 @@ export async function seedDefaults(env: import('../types').Env): Promise<{ seede
       'Indoor plant care agent. Full guide: watering, light, repotting, fertilizer, seasonal care, ' +
       'toxicity, and diagnosis. Triggers: plant names, watering, repotting, diseases, ' +
       'new/existing plant, pets and children.',
-    defaultLanguage: env.DEFAULT_LANGUAGE || 'ru',
+    defaultLanguage: env.DEFAULT_LANGUAGE || 'en',
     availableSkillIds: ALL_SKILL_IDS.filter(
       (id) =>
         id !== 'intent-detection' &&
