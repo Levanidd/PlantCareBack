@@ -21,16 +21,14 @@
     "RATE_LIMIT_WINDOW_SECONDS": "60",
     // Max decoded image size in bytes (8 MB).
     "MAX_IMAGE_BYTES": "8388608"
-  }
+  },
+  "kv_namespaces": [
+    { "binding": "CONFIG_KV", "id": "67cbe08e512b49508890b44fdae1b610" }
+  ]
 
-  // To enable durable, cross-isolate rate limiting, bind a KV namespace named
-  // RATE_LIMIT_KV (the code uses it automatically when present):
-  //
-  // "kv_namespaces": [
-  //   { "binding": "RATE_LIMIT_KV", "id": "<rate-limit-kv-id>" },
-  //   { "binding": "HISTORY_KV", "id": "<history-kv-id>" },
-  //   { "binding": "CONFIG_KV", "id": "<config-kv-id>" }
-  // ]
+  // Optional additional namespaces (create in dashboard, then add here):
+  //   RATE_LIMIT_KV — durable rate limiting across isolates
+  //   HISTORY_KV    — session history for /history routes
   //
   // Secrets (set with `wrangler secret put <NAME>`):
   //   GEMINI_API_KEY  — required, never exposed to clients.
