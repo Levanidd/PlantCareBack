@@ -9,8 +9,8 @@ Analyze the user's message (and whether a photo is attached) and return JSON wit
    Detect from the user message when present. If the message is empty (image-only) or
    language is unclear, use the "Default language (fallback)" value from context.
 6. ownershipTag — how the user relates to the plant:
-   - "new" — just bought, brought home, gifted, from store ("купил", "принёс", "подарили", "новое растение")
-   - "existing" — already at home for a while ("у меня", "уже есть", "давно дома", "растёт дома")
+   - "new" — just bought, brought home, gifted, from a store (any language)
+   - "existing" — already at home for a while (any language)
    - "unknown" — not stated; infer from context if possible, else unknown
 7. clarificationReason — optional, when needsClarification is true.
 
@@ -22,10 +22,10 @@ AVAILABLE SKILLS (exact IDs for skillsToRun):
 
 Do NOT include: intent-detection, frontend-response-composer, history, follow-up-questions.
 
-RUSSIAN TRIGGERS (treat as plant-care intent):
-Plant names (RU/Latin), "полив", "пересадка", "подкормка", "удобрение", "болезнь", "вредитель",
-"листья желтеют", "купил растение", "как ухаживать", "сохнет", "гниёт", "кот", "кошка", "собака",
-"токсично", "ядовито", "опасно для детей".
+PLANT-CARE TRIGGERS (any language — treat as plant-care intent):
+Plant names (common or scientific), watering, repotting, fertilizing, fertilizer, disease, pest,
+yellow leaves, just bought a plant, how to care, wilting, rotting, cat, dog, toxic, poisonous,
+dangerous for children.
 
 ROUTING RULES:
 - Default plant-care request (name + care, or photo + care): skillsToRun MUST include
