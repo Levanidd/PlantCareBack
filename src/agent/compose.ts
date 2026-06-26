@@ -26,6 +26,40 @@ interface LooseAction {
   priority?: string;
 }
 
+interface LooseCareTile {
+  key: string;
+  label: string;
+  value: string;
+  detail?: string;
+}
+
+/** Trim careProfile watering tile when wateringPlan carries the full detail. */
+function dedupeCareProfile(
+  careProfile: unknown,
+  wateringPlan: Dict | undefined,
+): LooseCareTile[] | undefined {
+  if (!Array.isArray(careProfile) || careProfile.length === 0) return undefined;
+  const planFreq = wateringPlan ? asStr(wateringPlan.frequency) : undefined;
+  const out: LooseCareTile[] = [];
+  for (const raw of careProfile) {
+    const o = asObj(raw);
+    if (!o) continue;
+    const key = asStr(o.key);
+    const label = asStr(o.label);
+    const value = asStr(o.value);
+    if (!key || !label || !value) continue;
+    if (key === 'watering' && planFreq) {
+      out.push({ key, label, value: planFreq });
+      continue;
+    }
+    const tile: LooseCareTile = { key, label, value };
+    const detail = asStr(o.detail);
+    if (detail) tile.detail = detail;
+    out.push(tile);
+  }
+  return out.length > 0 ? out : undefined;
+}
+
 /** Build a PlantCareResult-shaped object from the pipeline's skill results. */
 export function composeResult(ctx: SkillContext): Dict {
   const care = asObj(ctx.results['care-expert']);
@@ -33,6 +67,10 @@ export function composeResult(ctx: SkillContext): Dict {
   const ident = asObj(ctx.results['plant-identification']);
   const followUp = asObj(ctx.results['follow-up-questions']);
   const intent = ctx.results['intent-detection'] as IntentDetectionOutput | undefined;
+
+  const wateringPlanRaw = care?.wateringPlan;
+  const wateringPlanObj = asObj(wateringPlanRaw);
+  const careProfile = dedupeCareProfile(care?.careProfile, wateringPlanObj ?? undefined);
 
   const summary =
     asStr(care?.summary) ??
@@ -107,9 +145,9 @@ export function composeResult(ctx: SkillContext): Dict {
     confidence,
     warnings: warnings.length > 0 ? warnings : undefined,
     identification,
-    careProfile: care?.careProfile,
+    careProfile,
     diagnosis,
-    wateringPlan: care?.wateringPlan,
+    wateringPlan: wateringPlanRaw,
     actionPlan,
     followUps,
     difficultyLevel: care?.difficultyLevel,
