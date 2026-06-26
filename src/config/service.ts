@@ -199,7 +199,10 @@ export async function getAgentDetail(env: Env, id: string): Promise<EntityDetail
       description: 'Default Plant Care Agent',
       defaultLanguage: env.DEFAULT_LANGUAGE || 'ru',
       availableSkillIds: SKILL_SEEDS.map((s) => s.id).filter(
-        (sid) => sid !== 'intent-detection' && sid !== 'frontend-response-composer',
+        (sid) =>
+          sid !== 'intent-detection' &&
+          sid !== 'frontend-response-composer' &&
+          sid !== 'follow-up-questions',
       ) as AgentConfigContent['availableSkillIds'],
       toolIds: TOOL_SEEDS.map((t) => t.id),
       pipeline: {

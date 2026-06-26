@@ -223,7 +223,10 @@ export async function seedDefaults(env: import('../types').Env): Promise<{ seede
       'пересадка, болезни, купил/уже есть, животные/дети.',
     defaultLanguage: env.DEFAULT_LANGUAGE || 'ru',
     availableSkillIds: ALL_SKILL_IDS.filter(
-      (id) => id !== 'intent-detection' && id !== 'frontend-response-composer',
+      (id) =>
+        id !== 'intent-detection' &&
+        id !== 'frontend-response-composer' &&
+        id !== 'follow-up-questions',
     ),
     toolIds: TOOL_SEEDS.map((t) => t.id),
     pipeline: {

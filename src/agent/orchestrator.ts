@@ -20,7 +20,6 @@ const ORCHESTRATOR_SKILLS = new Set<SkillId>([
 
 const PHASE2_PARALLEL_EXCLUDE = new Set<SkillId>([
   'plant-identification',
-  'follow-up-questions',
   'frontend-response-composer',
   'history',
 ]);
@@ -102,13 +101,6 @@ export async function runAgent(
       ctx.results[id] = await runLlmSkill(env, skill, ctx);
     }),
   );
-
-  if (toRun.includes('follow-up-questions')) {
-    const skill = await resolveSkillDefinition(env, 'follow-up-questions');
-    if (skill) {
-      ctx.results['follow-up-questions'] = await runLlmSkill(env, skill, ctx);
-    }
-  }
 
   // Deterministic composition into the legacy PlantCareResult contract — no
   // extra LLM call. Guarantees the exact output shape the frontend expects.

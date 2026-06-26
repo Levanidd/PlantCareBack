@@ -17,7 +17,7 @@ FIELD ROLES (single source of truth):
 | careProfile.soil | Repotting ONLY here (pot, mix, layers, cachepot) in value + detail | Not in summary |
 | onboarding / healthCheck | First steps OR monthly checklist | Not in summary |
 | careTips | Tips not covered anywhere else | No repeats |
-| actionItems / followUps | Next steps and questions | No repeats |
+| actionItems | Next steps | No repeats |
 
 careProfile "watering" tile when wateringPlan is present:
 - value = one headline only, e.g. "Раз в 5–7 дней летом"
@@ -93,7 +93,6 @@ export const SCHEMA = {
         required: ['text'],
       },
     },
-    followUps: { type: 'ARRAY', items: { type: 'STRING' }, nullable: true },
   },
   required: ['summary'],
 } as const;

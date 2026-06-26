@@ -7,7 +7,6 @@ const RUNNABLE_SKILLS = new Set([
   'plant-identification',
   'care-expert',
   'diagnosis-safety',
-  'follow-up-questions',
 ]);
 
 function normalize(raw: unknown): IntentDetectionOutput | null {
@@ -31,16 +30,8 @@ function normalize(raw: unknown): IntentDetectionOutput | null {
     skillsToRun.push('care-expert', 'diagnosis-safety');
   }
 
-  const clarificationOnly =
-    skillsToRun.length === 1 && skillsToRun[0] === 'follow-up-questions';
-  if (!clarificationOnly) {
-    if (!skillsToRun.includes('care-expert')) skillsToRun.push('care-expert');
-    if (!skillsToRun.includes('diagnosis-safety')) skillsToRun.push('diagnosis-safety');
-  }
-
-  if (needsClarification && !skillsToRun.includes('follow-up-questions')) {
-    skillsToRun.push('follow-up-questions');
-  }
+  if (!skillsToRun.includes('care-expert')) skillsToRun.push('care-expert');
+  if (!skillsToRun.includes('diagnosis-safety')) skillsToRun.push('diagnosis-safety');
 
   const ownershipTag =
     o.ownershipTag === 'new' || o.ownershipTag === 'existing' || o.ownershipTag === 'unknown'

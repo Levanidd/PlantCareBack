@@ -17,9 +17,8 @@ AVAILABLE SKILLS (exact IDs for skillsToRun):
 - care-expert — ANY plant care request: how to care, watering, light, repotting, soil, fertilizer,
   seasonal care, new plant onboarding, health checklist for established plants
 - diagnosis-safety — symptoms (yellow leaves, spots, pests, mold, rot) AND/OR pet/child toxicity
-- follow-up-questions — ambiguous request, missing plant name, low confidence
 
-Do NOT include: intent-detection, frontend-response-composer, history.
+Do NOT include: intent-detection, frontend-response-composer, history, follow-up-questions.
 
 RUSSIAN TRIGGERS (treat as plant-care intent):
 Plant names (RU/Latin), "полив", "пересадка", "подкормка", "удобрение", "болезнь", "вредитель",
@@ -33,8 +32,8 @@ ROUTING RULES:
 - Symptoms or visible problems: ensure diagnosis-safety is included.
 - Pet/child safety question: diagnosis-safety (care-expert too if general care is implied).
 - care-expert covers ALL general care — never split into separate skills.
-- needsClarification=true OR confidence=low → add follow-up-questions.
 - If skillsToRun would be empty, use ["care-expert", "diagnosis-safety"].
-- Nonsense/unrelated message: confidence=low, needsClarification=true, skillsToRun=["follow-up-questions"].
+- Nonsense/unrelated message: confidence=low, needsClarification=true; still run care-expert
+  with cautious generic guidance.
 
 Return ONLY valid JSON matching the schema.`;

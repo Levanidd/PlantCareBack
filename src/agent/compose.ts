@@ -65,7 +65,6 @@ export function composeResult(ctx: SkillContext): Dict {
   const care = asObj(ctx.results['care-expert']);
   const diag = asObj(ctx.results['diagnosis-safety']);
   const ident = asObj(ctx.results['plant-identification']);
-  const followUp = asObj(ctx.results['follow-up-questions']);
   const intent = ctx.results['intent-detection'] as IntentDetectionOutput | undefined;
 
   const wateringPlanRaw = care?.wateringPlan;
@@ -113,16 +112,6 @@ export function composeResult(ctx: SkillContext): Dict {
     if (text) actionPlan.push({ text, priority: treatmentPriority });
   }
 
-  const followUps: string[] = [];
-  const seen = new Set<string>();
-  for (const raw of [...asArr(care?.followUps), ...asArr(followUp?.followUpQuestions)]) {
-    const text = asStr(raw);
-    if (text && !seen.has(text)) {
-      seen.add(text);
-      followUps.push(text);
-    }
-  }
-
   const warnings = [...asArr(diag?.warnings).map(asStr).filter((x): x is string => x !== undefined)];
 
   const toxicity =
@@ -149,7 +138,6 @@ export function composeResult(ctx: SkillContext): Dict {
     diagnosis,
     wateringPlan: wateringPlanRaw,
     actionPlan,
-    followUps,
     difficultyLevel: care?.difficultyLevel,
     seasonalAdvice: care?.seasonalAdvice,
     healthCheck,
