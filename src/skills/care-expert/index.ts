@@ -12,7 +12,7 @@ FIELD ROLES (single source of truth):
 
 | Field | What goes here | What must NOT go here |
 |-------|----------------|----------------------|
-| summary | 2–4 sentences ONLY: plant character, difficulty (🟢/🟡/🔴), who it suits, direct answer to the user's question | NO watering, light, soil, fertilizer, repotting, seasonal details |
+| summary | 2–4 sentences ONLY: plant character, who it suits, direct answer to the user's question | NO difficulty score (use careDifficultyScore), NO watering/light/soil details |
 | careProfile | Short metric tiles: "value" = headline (≤10 words), "detail" = optional ONE short line (≤15 words) | NO paragraphs, NO content that duplicates wateringPlan or seasonalAdvice |
 | wateringPlan | ALL watering depth: summer/winter in frequency, how to check in method, water type in amount, mistakes in notes | Do not repeat this in summary or careProfile.detail |
 | seasonalAdvice | Seasonal changes for current date + next 2–3 months | Not in summary or careProfile |
@@ -20,6 +20,10 @@ FIELD ROLES (single source of truth):
 | onboarding / healthCheck | First steps OR monthly checklist | Not in summary |
 | careTips | Tips not covered anywhere else | No repeats |
 | actionItems | Next steps | No repeats |
+
+careDifficultyScore — REQUIRED when giving a plant care guide. Integer 1–10:
+  1–2 very easy (beginner-friendly), 3–4 easy, 5–6 moderate, 7–8 demanding, 9–10 expert/challenging.
+  Base on the specific plant's real care needs, not generic defaults.
 
 careProfile "watering" tile when wateringPlan is present:
 - value = one headline only, e.g. "Every 5–7 days in summer"
@@ -43,7 +47,7 @@ export const SCHEMA = {
   type: 'OBJECT',
   properties: {
     summary: { type: 'STRING' },
-    difficultyLevel: { type: 'STRING', enum: ['easy', 'medium', 'hard'], nullable: true },
+    careDifficultyScore: { type: 'INTEGER', nullable: true },
     careProfile: {
       type: 'ARRAY',
       nullable: true,

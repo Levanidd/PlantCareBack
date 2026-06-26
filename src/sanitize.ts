@@ -192,6 +192,18 @@ function toxicity(v: unknown): ToxicitySection | undefined {
   return Object.keys(section).length > 0 ? section : undefined;
 }
 
+function careDifficultyScore(scoreRaw: unknown, legacyLevel?: unknown): number | undefined {
+  if (typeof scoreRaw === 'number' && Number.isFinite(scoreRaw)) {
+    const n = Math.round(scoreRaw);
+    if (n >= 1 && n <= 10) return n;
+  }
+  const level = enumVal(legacyLevel, DIFFICULTIES);
+  if (level === 'easy') return 3;
+  if (level === 'medium') return 5;
+  if (level === 'hard') return 8;
+  return undefined;
+}
+
 /** Coerce warnings — accepts string[] or legacy { message }[] objects. */
 function warnings(v: unknown): string[] | undefined {
   if (!Array.isArray(v)) return undefined;
@@ -218,8 +230,8 @@ export function sanitizeResult(input: unknown): PlantCareResult | null {
 
   const result: PlantCareResult = { summary };
 
-  const confidence = enumVal(o.confidence, CONFIDENCES);
-  if (confidence) result.confidence = confidence;
+  const score = careDifficultyScore(o.careDifficultyScore, o.difficultyLevel);
+  if (score !== undefined) result.careDifficultyScore = score;
 
   const w = warnings(o.warnings);
   if (w) result.warnings = w;
@@ -241,9 +253,6 @@ export function sanitizeResult(input: unknown): PlantCareResult | null {
 
   const followUps = strArray(o.followUps);
   if (followUps) result.followUps = followUps;
-
-  const difficultyLevel = enumVal(o.difficultyLevel, DIFFICULTIES);
-  if (difficultyLevel) result.difficultyLevel = difficultyLevel;
 
   const seasonalAdvice = str(o.seasonalAdvice);
   if (seasonalAdvice) result.seasonalAdvice = seasonalAdvice;

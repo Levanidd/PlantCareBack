@@ -113,10 +113,6 @@ export async function runAgent(
     throw new HttpError(502, 'The analysis service returned an incomplete result. Please try again.');
   }
 
-  if (!sanitized.confidence) {
-    sanitized.confidence = intent.confidence;
-  }
-
   await saveHistoryItem(env, sessionId, req.question, req.image !== null, sanitized);
 
   return sanitized;

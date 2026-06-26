@@ -96,7 +96,8 @@ export interface ToxicitySection {
 /** Legacy frontend response from POST /analyze. Only summary is guaranteed. */
 export interface PlantCareResult {
   summary: string;
-  confidence?: Confidence;
+  /** Care difficulty 1 (very easy) – 10 (very demanding). Shown as a ring near summary. */
+  careDifficultyScore?: number;
   warnings?: string[];
   identification?: PlantIdentification;
   careProfile?: CareProfileItem[];
@@ -104,8 +105,6 @@ export interface PlantCareResult {
   wateringPlan?: WateringPlan;
   actionPlan?: ActionItem[];
   followUps?: string[];
-  /** Care difficulty: easy / medium / hard. */
-  difficultyLevel?: DifficultyLevel;
   /** Seasonal care note for the current period. */
   seasonalAdvice?: string;
   /** Monthly health checklist (existing plants). */

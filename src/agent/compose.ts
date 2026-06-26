@@ -3,7 +3,7 @@
  *
  * Assembles the legacy `PlantCareResult` from structured skill outputs.
  */
-import type { IntentDetectionOutput, SkillContext } from '../skills/types';
+import type { SkillContext } from '../skills/types';
 
 type Dict = Record<string, unknown>;
 
@@ -24,6 +24,21 @@ function asStr(v: unknown): string | undefined {
 interface LooseAction {
   text: string;
   priority?: string;
+}
+
+/** Map care-expert score (1–10), with legacy easy/medium/hard fallback. */
+function resolveCareDifficultyScore(care: Dict | null): number | undefined {
+  if (!care) return undefined;
+  const raw = care.careDifficultyScore;
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    const n = Math.round(raw);
+    if (n >= 1 && n <= 10) return n;
+  }
+  const level = asStr(care.difficultyLevel);
+  if (level === 'easy') return 3;
+  if (level === 'medium') return 5;
+  if (level === 'hard') return 8;
+  return undefined;
 }
 
 interface LooseCareTile {
@@ -65,7 +80,6 @@ export function composeResult(ctx: SkillContext): Dict {
   const care = asObj(ctx.results['care-expert']);
   const diag = asObj(ctx.results['diagnosis-safety']);
   const ident = asObj(ctx.results['plant-identification']);
-  const intent = ctx.results['intent-detection'] as IntentDetectionOutput | undefined;
 
   const wateringPlanRaw = care?.wateringPlan;
   const wateringPlanObj = asObj(wateringPlanRaw);
@@ -76,8 +90,6 @@ export function composeResult(ctx: SkillContext): Dict {
     asStr(diag?.healthStatus) ??
     asStr(ident?.commonName) ??
     asStr(ident?.identificationNotes);
-
-  const confidence = asStr(ident?.confidenceLabel) ?? intent?.confidence;
 
   let identification: Dict | undefined;
   if (ident) {
@@ -129,16 +141,17 @@ export function composeResult(ctx: SkillContext): Dict {
   const healthCheck = care?.healthCheck;
   const onboarding = care?.onboardingSteps;
 
+  const careDifficultyScore = resolveCareDifficultyScore(care);
+
   return {
     summary,
-    confidence,
+    careDifficultyScore,
     warnings: warnings.length > 0 ? warnings : undefined,
     identification,
     careProfile,
     diagnosis,
     wateringPlan: wateringPlanRaw,
     actionPlan,
-    difficultyLevel: care?.difficultyLevel,
     seasonalAdvice: care?.seasonalAdvice,
     healthCheck,
     onboarding,
