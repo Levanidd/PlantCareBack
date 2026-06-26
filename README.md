@@ -48,7 +48,7 @@ Headers: `Content-Type: application/json`, `X-Session-Id` (required).
 
 Body: `{ "question": "...", "image": null | { name, mimeType, size, dataUrl } }`
 
-Success `200` → `PlantCareResult`: `summary` (string, required), `confidence`, `warnings`, `identification`, `careProfile`, `diagnosis`, `wateringPlan`, `actionPlan`, `followUps`. Only `summary` is guaranteed.
+Success `200` → `PlantCareResult`: `summary` (required), `confidence`, `warnings`, `identification`, `careProfile`, `diagnosis`, `wateringPlan`, `actionPlan`, `followUps`, `difficultyLevel`, `seasonalAdvice`, `healthCheck`, `onboarding`, `toxicity`, `preventionTips`.
 
 ### History (requires `HISTORY_KV` binding)
 

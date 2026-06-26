@@ -217,7 +217,10 @@ export async function seedDefaults(env: import('../types').Env): Promise<{ seede
   }
 
   const agentContent: AgentConfigContent = {
-    description: 'Default Plant Care Agent — intent-driven skills pipeline.',
+    description:
+      'Агент по уходу за комнатными растениями. Полный гайд: полив, свет, пересадка, ' +
+      'подкормка, сезон, токсичность, диагностика. Триггеры: названия растений, полив, ' +
+      'пересадка, болезни, купил/уже есть, животные/дети.',
     defaultLanguage: env.DEFAULT_LANGUAGE || 'ru',
     availableSkillIds: ALL_SKILL_IDS.filter(
       (id) => id !== 'intent-detection' && id !== 'frontend-response-composer',
@@ -226,7 +229,7 @@ export async function seedDefaults(env: import('../types').Env): Promise<{ seede
     pipeline: {
       intentSkillId: 'intent-detection',
       composerSkillId: 'frontend-response-composer',
-      alwaysAfterIntent: [],
+      alwaysAfterIntent: ['diagnosis-safety'],
     },
   };
   const agentVersion = seedVersion(agentContent, 1);

@@ -70,9 +70,15 @@ export async function runAgent(
   ctx.results['intent-detection'] = intent;
   ctx.detectedLanguage = intent.detectedLanguage || defaultLanguage;
 
-  const toRun = skillsForPhase(intent, ctx).filter((id) =>
+  let toRun = skillsForPhase(intent, ctx).filter((id) =>
     agentCfg.availableSkillIds.includes(id),
   );
+
+  for (const id of agentCfg.pipeline.alwaysAfterIntent ?? []) {
+    if (agentCfg.availableSkillIds.includes(id) && !toRun.includes(id)) {
+      toRun.push(id);
+    }
+  }
 
   // Guarantee at least one content-producing skill so the composed summary is
   // never empty (e.g. a clarification-only intent).

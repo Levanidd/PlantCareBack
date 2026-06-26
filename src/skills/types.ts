@@ -54,5 +54,6 @@ export interface IntentDetectionOutput {
   confidence: SkillConfidence;
   needsClarification: boolean;
   detectedLanguage: string;
+  ownershipTag?: 'new' | 'existing' | 'unknown';
   clarificationReason?: string;
 }

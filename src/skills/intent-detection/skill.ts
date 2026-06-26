@@ -28,11 +28,24 @@ function normalize(raw: unknown): IntentDetectionOutput | null {
     : [];
 
   if (skillsToRun.length === 0) {
-    skillsToRun.push('care-expert');
+    skillsToRun.push('care-expert', 'diagnosis-safety');
   }
+
+  const clarificationOnly =
+    skillsToRun.length === 1 && skillsToRun[0] === 'follow-up-questions';
+  if (!clarificationOnly) {
+    if (!skillsToRun.includes('care-expert')) skillsToRun.push('care-expert');
+    if (!skillsToRun.includes('diagnosis-safety')) skillsToRun.push('diagnosis-safety');
+  }
+
   if (needsClarification && !skillsToRun.includes('follow-up-questions')) {
     skillsToRun.push('follow-up-questions');
   }
+
+  const ownershipTag =
+    o.ownershipTag === 'new' || o.ownershipTag === 'existing' || o.ownershipTag === 'unknown'
+      ? o.ownershipTag
+      : 'unknown';
 
   return {
     detectedIntent,
@@ -40,6 +53,7 @@ function normalize(raw: unknown): IntentDetectionOutput | null {
     confidence,
     needsClarification,
     detectedLanguage,
+    ownershipTag,
     clarificationReason:
       typeof o.clarificationReason === 'string' ? o.clarificationReason.trim() : undefined,
   };

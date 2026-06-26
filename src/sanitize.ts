@@ -7,16 +7,22 @@ import type {
   Confidence,
   DiagnosisIssue,
   DiagnosisSection,
+  DifficultyLevel,
+  HealthCheckSection,
   PlantCareResult,
   PlantIdentification,
   Priority,
   Severity,
+  ToxicitySection,
+  TriState,
   WateringPlan,
 } from './types';
 
 const CONFIDENCES: readonly Confidence[] = ['low', 'medium', 'high'];
 const SEVERITIES: readonly Severity[] = ['info', 'warning', 'critical'];
 const PRIORITIES: readonly Priority[] = ['low', 'medium', 'high'];
+const DIFFICULTIES: readonly DifficultyLevel[] = ['easy', 'medium', 'hard'];
+const TRISTATE: readonly TriState[] = ['yes', 'no', 'unknown'];
 const CARE_KEYS = [
   'watering',
   'light',
@@ -156,6 +162,36 @@ function actionPlan(v: unknown): ActionItem[] | undefined {
   return out.length > 0 ? out : undefined;
 }
 
+function healthCheck(v: unknown): HealthCheckSection | undefined {
+  const o = obj(v);
+  if (!o) return undefined;
+  const section: HealthCheckSection = {};
+  const healthySigns = strArray(o.healthySigns);
+  const warningSigns = strArray(o.warningSigns);
+  const monthlyChecklist = strArray(o.monthlyChecklist);
+  if (healthySigns) section.healthySigns = healthySigns;
+  if (warningSigns) section.warningSigns = warningSigns;
+  if (monthlyChecklist) section.monthlyChecklist = monthlyChecklist;
+  return Object.keys(section).length > 0 ? section : undefined;
+}
+
+function toxicity(v: unknown): ToxicitySection | undefined {
+  const o = obj(v);
+  if (!o) return undefined;
+  const section: ToxicitySection = {};
+  const toxicToCats = enumVal(o.toxicToCats, TRISTATE);
+  const toxicToDogs = enumVal(o.toxicToDogs, TRISTATE);
+  const riskForChildren = enumVal(o.riskForChildren, TRISTATE);
+  const possibleSymptoms = strArray(o.possibleSymptoms);
+  const safetyAdvice = str(o.safetyAdvice);
+  if (toxicToCats) section.toxicToCats = toxicToCats;
+  if (toxicToDogs) section.toxicToDogs = toxicToDogs;
+  if (riskForChildren) section.riskForChildren = riskForChildren;
+  if (possibleSymptoms) section.possibleSymptoms = possibleSymptoms;
+  if (safetyAdvice) section.safetyAdvice = safetyAdvice;
+  return Object.keys(section).length > 0 ? section : undefined;
+}
+
 /** Coerce warnings — accepts string[] or legacy { message }[] objects. */
 function warnings(v: unknown): string[] | undefined {
   if (!Array.isArray(v)) return undefined;
@@ -205,6 +241,24 @@ export function sanitizeResult(input: unknown): PlantCareResult | null {
 
   const followUps = strArray(o.followUps);
   if (followUps) result.followUps = followUps;
+
+  const difficultyLevel = enumVal(o.difficultyLevel, DIFFICULTIES);
+  if (difficultyLevel) result.difficultyLevel = difficultyLevel;
+
+  const seasonalAdvice = str(o.seasonalAdvice);
+  if (seasonalAdvice) result.seasonalAdvice = seasonalAdvice;
+
+  const hc = healthCheck(o.healthCheck);
+  if (hc) result.healthCheck = hc;
+
+  const onboarding = strArray(o.onboarding);
+  if (onboarding) result.onboarding = onboarding;
+
+  const tox = toxicity(o.toxicity);
+  if (tox) result.toxicity = tox;
+
+  const preventionTips = strArray(o.preventionTips);
+  if (preventionTips) result.preventionTips = preventionTips;
 
   return result;
 }

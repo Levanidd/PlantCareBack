@@ -205,7 +205,7 @@ export async function getAgentDetail(env: Env, id: string): Promise<EntityDetail
       pipeline: {
         intentSkillId: 'intent-detection',
         composerSkillId: 'frontend-response-composer',
-        alwaysAfterIntent: [],
+        alwaysAfterIntent: ['diagnosis-safety'],
       },
     };
     return {

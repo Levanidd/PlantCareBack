@@ -9,6 +9,7 @@ export const SCHEMA = {
     confidence: { type: 'STRING', enum: ['low', 'medium', 'high'] },
     needsClarification: { type: 'BOOLEAN' },
     detectedLanguage: { type: 'STRING' },
+    ownershipTag: { type: 'STRING', enum: ['new', 'existing', 'unknown'], nullable: true },
     clarificationReason: { type: 'STRING', nullable: true },
   },
   required: ['detectedIntent', 'skillsToRun', 'confidence', 'needsClarification', 'detectedLanguage'],

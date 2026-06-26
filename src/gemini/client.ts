@@ -76,32 +76,66 @@ export async function callGeminiJson<T>(
     });
   } catch (err) {
     clearTimeout(timeout);
+    const message = (err as Error)?.message;
     if ((err as Error)?.name === 'AbortError') {
-      throw new HttpError(504, 'The analysis timed out. Please try again.');
+      throw new HttpError(504, 'The analysis timed out. Please try again.', {
+        source: 'gemini',
+        reason: 'timeout',
+        model,
+        timeoutMs,
+      });
     }
-    console.error('Gemini fetch failed:', (err as Error)?.message);
-    throw new HttpError(502, 'Could not reach the analysis service. Please try again.');
+    console.error('Gemini fetch failed:', message);
+    throw new HttpError(502, 'Could not reach the analysis service. Please try again.', {
+      source: 'gemini',
+      reason: 'fetch-failed',
+      model,
+      message,
+    });
   }
   clearTimeout(timeout);
 
   if (!response.ok) {
     const status = response.status;
-    console.error(`Gemini returned HTTP ${status}.`);
-    if (status === 429) {
-      throw new HttpError(429, 'The service is busy right now. Please try again in a moment.');
+    let bodyText = '';
+    try {
+      bodyText = await response.text();
+    } catch {
+      bodyText = '<unreadable body>';
     }
-    throw new HttpError(502, 'The analysis service returned an error. Please try again.');
+    console.error(`Gemini error: HTTP ${status} (model="${model}") :: ${bodyText.slice(0, 800)}`);
+    // Parse the upstream body so the frontend gets structured Gemini error info.
+    let upstreamBody: unknown = bodyText;
+    try {
+      upstreamBody = JSON.parse(bodyText);
+    } catch {
+      /* keep raw text */
+    }
+    const detail = { source: 'gemini', status, model, body: upstreamBody };
+    if (status === 429) {
+      throw new HttpError(429, 'The service is busy right now. Please try again in a moment.', detail);
+    }
+    throw new HttpError(502, 'The analysis service returned an error. Please try again.', detail);
   }
 
   let data: GeminiResponse;
   try {
     data = (await response.json()) as GeminiResponse;
   } catch {
-    throw new HttpError(502, 'The analysis service returned an unreadable response.');
+    throw new HttpError(502, 'The analysis service returned an unreadable response.', {
+      source: 'gemini',
+      reason: 'unreadable-response',
+      model,
+    });
   }
 
   if (data.promptFeedback?.blockReason) {
-    throw new HttpError(422, 'The request could not be processed. Try rephrasing or a different photo.');
+    throw new HttpError(422, 'The request could not be processed. Try rephrasing or a different photo.', {
+      source: 'gemini',
+      reason: 'blocked',
+      blockReason: data.promptFeedback.blockReason,
+      model,
+    });
   }
 
   const text = data.candidates?.[0]?.content?.parts
@@ -110,12 +144,22 @@ export async function callGeminiJson<T>(
     .trim();
 
   if (!text) {
-    throw new HttpError(502, 'The analysis service returned an empty response. Please try again.');
+    throw new HttpError(502, 'The analysis service returned an empty response. Please try again.', {
+      source: 'gemini',
+      reason: 'empty-response',
+      model,
+      raw: data,
+    });
   }
 
   try {
     return JSON.parse(text) as T;
   } catch {
-    throw new HttpError(502, 'The analysis service returned malformed data. Please try again.');
+    throw new HttpError(502, 'The analysis service returned malformed data. Please try again.', {
+      source: 'gemini',
+      reason: 'malformed-json',
+      model,
+      text: text.slice(0, 800),
+    });
   }
 }

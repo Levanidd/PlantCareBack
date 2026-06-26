@@ -166,7 +166,9 @@ export default {
       return errorResponse('Not found.', 404, cors);
     } catch (err) {
       if (err instanceof HttpError) {
-        return errorResponse(err.message, err.status, cors);
+        const payload: Record<string, unknown> = { message: err.message };
+        if (err.detail !== undefined) payload.detail = err.detail;
+        return json(payload, err.status, cors);
       }
       console.error('Unhandled error:', (err as Error)?.message);
       return errorResponse('Something went wrong. Please try again.', 500, cors);

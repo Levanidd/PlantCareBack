@@ -76,6 +76,23 @@ export interface ActionItem {
   priority?: Priority;
 }
 
+export type DifficultyLevel = 'easy' | 'medium' | 'hard';
+export type TriState = 'yes' | 'no' | 'unknown';
+
+export interface HealthCheckSection {
+  healthySigns?: string[];
+  warningSigns?: string[];
+  monthlyChecklist?: string[];
+}
+
+export interface ToxicitySection {
+  toxicToCats?: TriState;
+  toxicToDogs?: TriState;
+  riskForChildren?: TriState;
+  possibleSymptoms?: string[];
+  safetyAdvice?: string;
+}
+
 /** Legacy frontend response from POST /analyze. Only summary is guaranteed. */
 export interface PlantCareResult {
   summary: string;
@@ -87,6 +104,18 @@ export interface PlantCareResult {
   wateringPlan?: WateringPlan;
   actionPlan?: ActionItem[];
   followUps?: string[];
+  /** Care difficulty: easy / medium / hard. */
+  difficultyLevel?: DifficultyLevel;
+  /** Seasonal care note for the current period. */
+  seasonalAdvice?: string;
+  /** Monthly health checklist (existing plants). */
+  healthCheck?: HealthCheckSection;
+  /** First steps after buying a new plant. */
+  onboarding?: string[];
+  /** Pet/child safety assessment. */
+  toxicity?: ToxicitySection;
+  /** Diagnosis prevention tips. */
+  preventionTips?: string[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -97,8 +126,6 @@ export type ConfidenceLabel = 'low' | 'medium' | 'high';
 export type ActionPriority = 'low' | 'medium' | 'high';
 export type WarningType = 'toxicity' | 'urgency' | 'confidence' | 'general';
 export type UrgencyLevel = 'low' | 'medium' | 'high' | 'critical';
-export type DifficultyLevel = 'easy' | 'medium' | 'hard';
-export type TriState = 'yes' | 'no' | 'unknown';
 
 export interface SummarySection {
   title: string;
