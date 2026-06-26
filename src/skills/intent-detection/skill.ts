@@ -1,5 +1,5 @@
 import { buildUserParts } from '../helpers';
-import type { IntentDetectionOutput, LlmSkillDefinition } from '../types';
+import type { IntentDetectionOutput, LlmSkillDefinition, SkillContext } from '../types';
 import { PROMPT } from './prompt';
 import { SCHEMA } from './schema';
 
@@ -9,16 +9,17 @@ const RUNNABLE_SKILLS = new Set([
   'diagnosis-safety',
 ]);
 
-function normalize(raw: unknown): IntentDetectionOutput | null {
+function normalize(raw: unknown, ctx: SkillContext): IntentDetectionOutput | null {
   if (!raw || typeof raw !== 'object') return null;
   const o = raw as Record<string, unknown>;
   const detectedIntent = typeof o.detectedIntent === 'string' ? o.detectedIntent.trim() : '';
   const confidence = o.confidence;
   const needsClarification = o.needsClarification === true;
+  const fallbackLang = ctx.defaultLanguage?.trim().toLowerCase() || 'en';
   const detectedLanguage =
     typeof o.detectedLanguage === 'string' && o.detectedLanguage.trim()
       ? o.detectedLanguage.trim().toLowerCase()
-      : 'ru';
+      : fallbackLang;
   if (!detectedIntent) return null;
   if (confidence !== 'low' && confidence !== 'medium' && confidence !== 'high') return null;
 

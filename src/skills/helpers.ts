@@ -4,24 +4,44 @@
 import type { GeminiPart } from '../gemini/client';
 import type { IntentDetectionOutput, SkillContext } from './types';
 
-/** Human-readable current date for seasonal care (UTC, Russian month names optional). */
-export function currentDateLabel(): string {
+const LANGUAGE_LABELS: Record<string, string> = {
+  ru: 'Russian',
+  en: 'English',
+  de: 'German',
+  es: 'Spanish',
+  fr: 'French',
+  it: 'Italian',
+  pt: 'Portuguese',
+  uk: 'Ukrainian',
+  pl: 'Polish',
+};
+
+export function languageLabel(code: string): string {
+  return LANGUAGE_LABELS[code.toLowerCase()] ?? code;
+}
+
+/** Human-readable current date for seasonal care, localized to output language. */
+export function currentDateLabel(lang: string): string {
   const now = new Date();
-  const months = [
-    'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря',
-  ];
-  const d = now.getUTCDate();
-  const m = months[now.getUTCMonth()];
-  const y = now.getUTCFullYear();
-  return `${d} ${m} ${y}`;
+  const locale = lang.toLowerCase() === 'ru' ? 'ru-RU' : lang;
+  try {
+    return now.toLocaleDateString(locale, {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
+  } catch {
+    return now.toISOString().slice(0, 10);
+  }
 }
 
 export function buildBaseContextText(ctx: SkillContext): string {
   const lines: string[] = [];
   lines.push(`User message: ${ctx.question || '(no text — image only)'}`);
-  lines.push(`Detected language for user-facing output: ${ctx.detectedLanguage}`);
-  lines.push(`Current date: ${currentDateLabel()} (use for seasonal advice)`);
+  lines.push(`Default language (fallback): ${ctx.defaultLanguage}`);
+  lines.push(`Output language: ${ctx.detectedLanguage}`);
+  lines.push(`Current date: ${currentDateLabel(ctx.detectedLanguage)} (use for seasonal advice)`);
   lines.push(`Photo attached: ${ctx.image ? 'yes' : 'no'}`);
 
   const intent = ctx.results['intent-detection'] as IntentDetectionOutput | undefined;
@@ -57,6 +77,9 @@ export function buildUserParts(ctx: SkillContext, extra?: string): GeminiPart[] 
 }
 
 export function languageRule(ctx: SkillContext): string {
-  const lang = ctx.detectedLanguage === 'ru' ? 'Russian' : ctx.detectedLanguage;
-  return `Write all user-facing text in ${lang}. System instructions are in English; output text must match the user's language.`;
+  const label = languageLabel(ctx.detectedLanguage);
+  return (
+    `Write all user-facing text in ${label} (ISO code "${ctx.detectedLanguage}"). ` +
+    `System instructions are in English; output text must use the output language above.`
+  );
 }

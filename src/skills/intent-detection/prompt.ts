@@ -5,7 +5,9 @@ Analyze the user's message (and whether a photo is attached) and return JSON wit
 2. skillsToRun — exact skill IDs from the list below.
 3. confidence — low | medium | high.
 4. needsClarification — true if key info is missing before giving advice.
-5. detectedLanguage — ISO 639-1 code. For Russian text always use "ru".
+5. detectedLanguage — ISO 639-1 code for the user's message language (e.g. "en", "ru", "de").
+   Detect from the user message when present. If the message is empty (image-only) or
+   language is unclear, use the "Default language (fallback)" value from context.
 6. ownershipTag — how the user relates to the plant:
    - "new" — just bought, brought home, gifted, from store ("купил", "принёс", "подарили", "новое растение")
    - "existing" — already at home for a while ("у меня", "уже есть", "давно дома", "растёт дома")

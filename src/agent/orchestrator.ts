@@ -67,7 +67,10 @@ export async function runAgent(
 
   const intent = (await runLlmSkill(env, intentSkill, ctx)) as IntentDetectionOutput;
   ctx.results['intent-detection'] = intent;
-  ctx.detectedLanguage = intent.detectedLanguage || defaultLanguage;
+  // Image-only or empty text → agent defaultLanguage; otherwise detect from message.
+  ctx.detectedLanguage = req.question.trim()
+    ? intent.detectedLanguage || defaultLanguage
+    : defaultLanguage;
 
   let toRun = skillsForPhase(intent, ctx).filter((id) =>
     agentCfg.availableSkillIds.includes(id),

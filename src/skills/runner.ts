@@ -16,7 +16,7 @@ export async function runLlmSkill<T>(
     responseSchema: skill.responseSchema,
   });
   if (skill.normalize) {
-    const normalized = skill.normalize(raw);
+    const normalized = skill.normalize(raw, ctx);
     if (normalized === null) {
       throw new Error(`Skill "${skill.id}" returned invalid output.`);
     }

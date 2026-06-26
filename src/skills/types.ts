@@ -41,7 +41,7 @@ export interface LlmSkillDefinition<TOutput = unknown> {
   responseSchema: Record<string, unknown>;
   buildUserParts: (ctx: SkillContext) => GeminiPart[];
   /** Optional post-parse validation/normalization. */
-  normalize?: (raw: unknown) => TOutput | null;
+  normalize?: (raw: unknown, ctx: SkillContext) => TOutput | null;
 }
 
 export type SkillRunner = {
