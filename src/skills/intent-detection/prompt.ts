@@ -13,6 +13,25 @@ Analyze the user's message (and whether a photo is attached) and return JSON wit
    - "existing" — already at home for a while (any language)
    - "unknown" — not stated; infer from context if possible, else unknown
 7. clarificationReason — optional, when needsClarification is true.
+8. sectionOrder — rank result sections most-relevant-first for THIS request.
+   Use only these keys (omit ones that won't matter):
+   identification, diagnosis, careProfile, watering, toxicity, seasonal, actionPlan.
+   The frontend always shows the text summary first and follow-ups last; sectionOrder
+   controls everything in between. Decide what the user most needs to see at the top.
+
+SECTION ORDERING GUIDANCE (adapt to the actual message, do not copy blindly):
+- Watering question ("how often to water", "yellow leaves from overwatering"):
+  ["watering", "careProfile", "actionPlan", ...].
+- Sick / damaged plant (spots, pests, rot, wilting, photo of a problem):
+  ["diagnosis", "actionPlan", "careProfile", ...] — diagnosis and what to do come first.
+- Just bought / new plant (ownershipTag "new"): lead with what to check and safety:
+  ["actionPlan", "toxicity", "identification", "careProfile", ...].
+- Pet / child safety question: ["toxicity", "diagnosis", ...].
+- "What plant is this?" / photo identification: ["identification", "careProfile", ...].
+- General care with no special focus: ["careProfile", "watering", "seasonal", "actionPlan", ...].
+- Seasonal question (winter care, summer, repotting season): ["seasonal", "careProfile", ...].
+Only list sections that are actually relevant; the frontend appends any omitted
+sections afterward in a sensible default order.
 
 AVAILABLE SKILLS (exact IDs for skillsToRun):
 - plant-identification — photo attached, user asks what plant it is, unknown or informal plant name

@@ -17,7 +17,9 @@ import type {
   TriState,
   WateringPlan,
 } from './types';
+import { BLOCK_KEYS } from './types';
 
+const BLOCK_KEY_SET = new Set<string>(BLOCK_KEYS);
 const CONFIDENCES: readonly Confidence[] = ['low', 'medium', 'high'];
 const SEVERITIES: readonly Severity[] = ['info', 'warning', 'critical'];
 const PRIORITIES: readonly Priority[] = ['low', 'medium', 'high'];
@@ -208,6 +210,18 @@ function careDifficultyScore(scoreRaw: unknown, legacyLevel?: unknown): number |
   return undefined;
 }
 
+/** Validate the LLM-decided section order — keep known keys, drop dupes. */
+function blockOrder(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out: string[] = [];
+  for (const raw of v) {
+    if (typeof raw === 'string' && BLOCK_KEY_SET.has(raw) && !out.includes(raw)) {
+      out.push(raw);
+    }
+  }
+  return out.length > 0 ? out : undefined;
+}
+
 /** Coerce warnings — accepts string[] or legacy { message }[] objects. */
 function warnings(v: unknown): string[] | undefined {
   if (!Array.isArray(v)) return undefined;
@@ -236,6 +250,9 @@ export function sanitizeResult(input: unknown): PlantCareResult | null {
 
   const score = careDifficultyScore(o.careDifficultyScore, o.difficultyLevel);
   if (score !== undefined) result.careDifficultyScore = score;
+
+  const order = blockOrder(o.blockOrder);
+  if (order) result.blockOrder = order;
 
   const w = warnings(o.warnings);
   if (w) result.warnings = w;

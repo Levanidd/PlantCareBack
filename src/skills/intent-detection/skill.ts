@@ -9,6 +9,16 @@ const RUNNABLE_SKILLS = new Set([
   'diagnosis-safety',
 ]);
 
+const SECTION_KEYS = new Set([
+  'identification',
+  'diagnosis',
+  'careProfile',
+  'watering',
+  'toxicity',
+  'seasonal',
+  'actionPlan',
+]);
+
 function normalize(raw: unknown, ctx: SkillContext): IntentDetectionOutput | null {
   if (!raw || typeof raw !== 'object') return null;
   const o = raw as Record<string, unknown>;
@@ -39,6 +49,10 @@ function normalize(raw: unknown, ctx: SkillContext): IntentDetectionOutput | nul
       ? o.ownershipTag
       : 'unknown';
 
+  const sectionOrder = Array.isArray(o.sectionOrder)
+    ? [...new Set(o.sectionOrder.filter((s): s is string => typeof s === 'string' && SECTION_KEYS.has(s)))]
+    : undefined;
+
   return {
     detectedIntent,
     skillsToRun: skillsToRun as IntentDetectionOutput['skillsToRun'],
@@ -48,6 +62,7 @@ function normalize(raw: unknown, ctx: SkillContext): IntentDetectionOutput | nul
     ownershipTag,
     clarificationReason:
       typeof o.clarificationReason === 'string' ? o.clarificationReason.trim() : undefined,
+    sectionOrder: sectionOrder && sectionOrder.length > 0 ? sectionOrder : undefined,
   };
 }
 

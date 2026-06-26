@@ -11,6 +11,22 @@ export const SCHEMA = {
     detectedLanguage: { type: 'STRING' },
     ownershipTag: { type: 'STRING', enum: ['new', 'existing', 'unknown'], nullable: true },
     clarificationReason: { type: 'STRING', nullable: true },
+    sectionOrder: {
+      type: 'ARRAY',
+      nullable: true,
+      items: {
+        type: 'STRING',
+        enum: [
+          'identification',
+          'diagnosis',
+          'careProfile',
+          'watering',
+          'toxicity',
+          'seasonal',
+          'actionPlan',
+        ],
+      },
+    },
   },
   required: ['detectedIntent', 'skillsToRun', 'confidence', 'needsClarification', 'detectedLanguage'],
 } as const;

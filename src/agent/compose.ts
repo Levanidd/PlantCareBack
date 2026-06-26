@@ -84,6 +84,11 @@ export function composeResult(ctx: SkillContext): Dict {
   const care = asObj(ctx.results['care-expert']);
   const diag = asObj(ctx.results['diagnosis-safety']);
   const ident = asObj(ctx.results['plant-identification']);
+  const intent = asObj(ctx.results['intent-detection']);
+
+  const blockOrder = Array.isArray(intent?.sectionOrder)
+    ? (intent!.sectionOrder as unknown[]).filter((s): s is string => typeof s === 'string')
+    : undefined;
 
   const wateringPlanRaw = care?.wateringPlan;
   const wateringPlanObj = asObj(wateringPlanRaw);
@@ -150,6 +155,7 @@ export function composeResult(ctx: SkillContext): Dict {
   return {
     summary,
     careDifficultyScore,
+    blockOrder: blockOrder && blockOrder.length > 0 ? blockOrder : undefined,
     warnings: warnings.length > 0 ? warnings : undefined,
     identification,
     careProfile,

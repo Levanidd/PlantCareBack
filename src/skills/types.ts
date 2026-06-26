@@ -56,4 +56,6 @@ export interface IntentDetectionOutput {
   detectedLanguage: string;
   ownershipTag?: 'new' | 'existing' | 'unknown';
   clarificationReason?: string;
+  /** Result section keys ranked most-relevant-first for this request. */
+  sectionOrder?: string[];
 }

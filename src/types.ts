@@ -93,11 +93,25 @@ export interface ToxicitySection {
   safetyAdvice?: string;
 }
 
+/** Orderable result sections. summary/warnings stay pinned at top, followUps at bottom. */
+export const BLOCK_KEYS = [
+  'identification',
+  'diagnosis',
+  'careProfile',
+  'watering',
+  'toxicity',
+  'seasonal',
+  'actionPlan',
+] as const;
+export type BlockKey = (typeof BLOCK_KEYS)[number];
+
 /** Legacy frontend response from POST /analyze. Only summary is guaranteed. */
 export interface PlantCareResult {
   summary: string;
   /** Care difficulty 1 (very easy) – 10 (very demanding). Shown as a ring near summary. */
   careDifficultyScore?: number;
+  /** Section keys ranked most-relevant-first; frontend renders blocks in this order. */
+  blockOrder?: string[];
   warnings?: string[];
   identification?: PlantIdentification;
   careProfile?: CareProfileItem[];
