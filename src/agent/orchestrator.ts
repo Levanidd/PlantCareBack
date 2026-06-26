@@ -10,6 +10,7 @@ import { runLlmSkill } from '../skills/runner';
 import type { IntentDetectionOutput, SkillContext, SkillId } from '../skills/types';
 import type { Env, PlantCareResult } from '../types';
 import type { NormalizedRequest } from '../validation';
+import { composeResult } from './compose';
 
 const ORCHESTRATOR_SKILLS = new Set<SkillId>([
   'intent-detection',
@@ -59,7 +60,6 @@ export async function runAgent(
   const ctx = buildContext(req, sessionId, defaultLanguage);
 
   const intentSkillId = agentCfg.pipeline.intentSkillId;
-  const composerSkillId = agentCfg.pipeline.composerSkillId;
 
   const intentSkill = await resolveSkillDefinition(env, intentSkillId);
   if (!intentSkill) {
@@ -73,6 +73,13 @@ export async function runAgent(
   const toRun = skillsForPhase(intent, ctx).filter((id) =>
     agentCfg.availableSkillIds.includes(id),
   );
+
+  // Guarantee at least one content-producing skill so the composed summary is
+  // never empty (e.g. a clarification-only intent).
+  const CONTENT_SKILLS: SkillId[] = ['care-expert', 'diagnosis-safety', 'plant-identification'];
+  if (!toRun.some((id) => CONTENT_SKILLS.includes(id)) && agentCfg.availableSkillIds.includes('care-expert')) {
+    toRun.push('care-expert');
+  }
 
   if (toRun.includes('plant-identification')) {
     const skill = await resolveSkillDefinition(env, 'plant-identification');
@@ -97,12 +104,9 @@ export async function runAgent(
     }
   }
 
-  const composerSkill = await resolveSkillDefinition(env, composerSkillId);
-  if (!composerSkill) {
-    throw new HttpError(500, 'Response composer skill is not configured.');
-  }
-
-  const composed = await runLlmSkill<unknown>(env, composerSkill, ctx);
+  // Deterministic composition into the legacy PlantCareResult contract — no
+  // extra LLM call. Guarantees the exact output shape the frontend expects.
+  const composed = composeResult(ctx);
   const sanitized = sanitizeResult(composed);
   if (!sanitized) {
     throw new HttpError(502, 'The analysis service returned an incomplete result. Please try again.');

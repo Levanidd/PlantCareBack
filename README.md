@@ -16,7 +16,7 @@ Intent Detection Skill          (always — picks which skills to run)
     ├─ Follow-up Questions      (if ambiguous / low confidence)
     │      (the experts above run in parallel)
     ▼
-Frontend Response Composer      (merges skill outputs → PlantCareResult)
+Deterministic Composer          (code — merges skill outputs → PlantCareResult, no LLM call)
     │
     ▼
 History Skill                   (optional — saves to HISTORY_KV)
@@ -33,10 +33,12 @@ Each skill lives in its own folder under `src/skills/` with an **English prompt*
 | Care Expert | `care-expert/` | ✓ |
 | Diagnosis & Safety | `diagnosis-safety/` | ✓ |
 | Follow-up Questions | `follow-up-questions/` | |
-| Frontend Response Composer | `frontend-response-composer/` | ✓ |
+| Frontend Response Composer | `agent/compose.ts` (code, no LLM) | ✓ |
 | History | `history/store.ts` (KV, no LLM) | ✓ |
 
-**Gemini calls per `/analyze`:** typically **3** (intent + care-expert + composer); **4–5** with identification and/or diagnosis. The `care-expert` and `diagnosis-safety` experts run in parallel.
+The final response is assembled **deterministically in code** (`src/agent/compose.ts`) from the skill outputs into the legacy `PlantCareResult` contract — no extra Gemini call, and the output shape is guaranteed. (The `frontend-response-composer` config entry is retained for backward compatibility but is no longer invoked as an LLM skill.)
+
+**Gemini calls per `/analyze`:** typically **2** (intent + care-expert); **3–4** with identification and/or diagnosis. The `care-expert` and `diagnosis-safety` experts run in parallel.
 
 ## API
 
